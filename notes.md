@@ -1,0 +1,1 @@
+Some practice algorithms for strings.
