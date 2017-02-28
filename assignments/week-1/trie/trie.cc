@@ -20,18 +20,54 @@ typedef map<char, int> edges;
 // root: Of a trie which contains a bunch of edges.
 typedef vector<edges> trie;
 
-
 trie build_trie(vector<string> & patterns) {
-  trie root;
+  trie pattern_trie;
+  edges root_node;
+  pattern_trie.push_back(root_node);
+
   for(int i = 0; i < patterns.size(); i++ )  {
-    trie cur_node = root;    
-    for(int j = 0; j < patterns[i].size();i++) {      
+    int cur_node = 0;
+
+    if(debug)
+      std::cerr<<"adding-pattern:["<<patterns[i]<<"]"<<std::endl;
+
+    for(int j = 0; j < patterns[i].size() ;j++) {
+
       char cur_char = patterns[i][j];
-      
-      
+
+      if(debug)
+        std::cerr<<"current-char:["<<cur_char<<"]"<<std::endl;
+
+      bool found = false;
+
+      //Go through all the edges.
+      edges node_edges = pattern_trie[cur_node];
+
+      std::map<char,int>::iterator entry = node_edges.find(cur_char);
+
+      if(entry != node_edges.end()) {
+
+        if(debug)
+          std::cerr<<"found-edge:["<<cur_char<<"]:"<<entry->first<<","<<entry->second<<std::endl;
+
+        cur_node = entry->second;
+        found = true;
+
+      } else  { // add a new edge
+        int node_number = pattern_trie.size();
+        if(debug)
+          std::cerr<<"adding-edge:["<<cur_char<<","<<node_number<<"]"<<std::endl;
+
+        // Leaf Node: Empty Edge Set
+        edges new_node;
+        pattern_trie.push_back(new_node);
+        pattern_trie[cur_node][cur_char] = node_number;
+        //        cur_node = node_number;
+      }
     }
   }
-  return root;
+
+  return pattern_trie;
 }
 
 int main() {
