@@ -42,7 +42,7 @@
   (interactive)
   (an/load-suites)
   (let ((found-suite nil )
-        (name    (ido-completing-read "Testsuite Name:" (mapcar 'an/testsuite-name an/testsuites))))
+        (name    (completing-read "Testsuite Name:" (mapcar 'an/testsuite-name an/testsuites))))
   (dolist(ts an/testsuites)
     (if (and (an/testsuite-p ts)
              (equal (string-trim name) (an/testsuite-name ts)))
