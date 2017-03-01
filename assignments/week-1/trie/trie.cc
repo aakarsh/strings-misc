@@ -21,15 +21,19 @@ typedef map<char, int> edges;
 typedef vector<edges> trie;
 
 trie build_trie(vector<string> & patterns) {
+
   trie pattern_trie;
   edges root_node;
+
   pattern_trie.push_back(root_node);
 
   for(int i = 0; i < patterns.size(); i++ )  {
     int cur_node = 0;
 
-    if(debug)
+    if(debug){
+      std::cerr<<"-------------------------------------------"<<std::endl;
       std::cerr<<"adding-pattern:["<<patterns[i]<<"]"<<std::endl;
+    }
 
     for(int j = 0; j < patterns[i].size() ;j++) {
 
@@ -55,18 +59,21 @@ trie build_trie(vector<string> & patterns) {
 
       } else  { // add a new edge
         int node_number = pattern_trie.size();
+
         if(debug)
           std::cerr<<"adding-edge:["<<cur_char<<","<<node_number<<"]"<<std::endl;
 
-        // Leaf Node: Empty Edge Set
         edges new_node;
+
+        // leaf node : empty edge set
         pattern_trie.push_back(new_node);
         pattern_trie[cur_node][cur_char] = node_number;
-        //        cur_node = node_number;
+        cur_node = node_number;
       }
     }
+    if(debug)
+      std::cerr<<"-------------------------------------------"<<std::endl;
   }
-
   return pattern_trie;
 }
 
