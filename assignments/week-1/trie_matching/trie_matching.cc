@@ -53,6 +53,14 @@ int letterToIndex(char letter) {
   }
 }
 
+vector<char> prefix_trie_match(int start_index, const string & text , trie & pat_trie) ;
+
+/**
+ * Builds a trie a set of patterns.
+ *
+ * Trie format - [{<edge-label>:<trie_position>,..},{..},..]
+ *
+ */
 trie build_trie(const vector<string> & patterns) {
 
   trie pattern_trie;
@@ -108,6 +116,7 @@ trie build_trie(const vector<string> & patterns) {
     }
     if(debug)
       std::cerr<<"-------------------------------------------"<<std::endl;
+
   }
   return pattern_trie;
 }
@@ -121,16 +130,67 @@ trie build_trie(const vector<string> & patterns) {
  * patterns     -  patterns to match against
  * @return      -  all starting positions which match the text
  */
+
 vector <int> solve(const string& text, int n,
                    const vector <string>& patterns) {
-  
-  vector <int> result;  
+
+  vector <int> result;
+
   trie search_tree = build_trie(patterns);
+
+  for(int i = 0; i < text.size(); i++ ){
+
+    vector<char> matched_pat = prefix_trie_match(i,text,search_tree);
   
-  
-  
+    if(debug && matched_pat.size() > 0) {
+      std::cerr<<"Matched Pattern [";
+      for(char c : matched_pat)    
+        std::cerr<<c;
+      std::cerr<<"]"<<std::endl;
+      std::cerr<<"index : "<<i<<std::endl;
+      //matched position
+
+    }
+    if(matched_pat.size() > 0) {
+      result.push_back(i); 
+    }
+  }
+
   return result;
 }
+
+
+vector<char> prefix_trie_match(int start_index, const string & text , trie & pat_trie) {
+
+  int current_node = 0;
+  int text_pos = start_index;
+  int cur_symbol = text [text_pos++];
+  vector<char> matched;
+
+  while(true){
+
+    // current node is empty
+    if(pat_trie[current_node].size() == 0) {
+      return matched;
+    }
+
+    edges edge_set = pat_trie[current_node];
+
+    map<char,int>::iterator entry = edge_set.find(cur_symbol);
+    if(entry != edge_set.end()) { // found - traverse
+      char matched_char = entry->first;
+      matched.push_back(matched_char);      
+      current_node = entry->second;
+      cur_symbol = text[text_pos++];
+    } else { // no match found
+      return vector<char>();
+    }
+  }
+  return matched;
+}
+
+
+
 
 
 int main (void)
