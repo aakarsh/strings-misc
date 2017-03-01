@@ -72,11 +72,18 @@ trie build_trie(const vector<string> & patterns) {
       if(entry != node_edges.end()) {
 
         if(debug) {
-          std::cerr<<"found-edge:["<< cur_char <<"]:"<<entry->first <<","<<entry->second <<std::endl;
+          std::cerr<<"found-edge:["<< cur_char <<"]:"<< entry->first <<","<< entry->second <<std::endl;
         }
-        cur_node = entry->second;
 
+        cur_node = entry->second;
         found = true;
+
+        if( j+1 == patterns[i].size() &&
+           !(pattern_trie[cur_node].first).empty()) {
+          if(debug) std::cerr<<"setting-terminal:"<<patterns[i]<<std::endl;
+          pattern_trie[cur_node].second = true;
+        }
+        
 
       } else  { // add a new edge
         int node_number = pattern_trie.size();
@@ -87,27 +94,29 @@ trie build_trie(const vector<string> & patterns) {
 
         //edges new_node;
         node new_node;
+
         // leaf node : empty edge set
         pattern_trie.push_back(new_node);
-
-        (pattern_trie[cur_node].first)[cur_char] = node_number;
         cur_node = node_number;
+        (pattern_trie[cur_node].first)[cur_char] = node_number;
 
-        if(j+1 == patterns[i].size()) {
-          if(debug) {
-            std::cerr<<"setting-Terminal :"<< patterns[i]<<std::endl;
-          }
+        //TODO This seems to be setting AT and AG as terminal too.
+        // We could go on with the traversal but we are done with the current pattern
 
+        if( (j+1) == patterns[i].size() &&
+            !(pattern_trie[cur_node].first).empty()) {
+          
+          if(debug) std::cerr<<"setting-terminal:"<<patterns[i]<<std::endl;
           pattern_trie[cur_node].second = true;
+
         }
 
-        if(debug){
 
+        if(debug) {
           std::cerr<<"After adding edges "<<pattern_trie[cur_node].first.size()<<std::endl;
         }
 
-
-      }
+      
     }
     if(debug)
       std::cerr<<"-------------------------------------------"<<std::endl;
@@ -125,16 +134,13 @@ trie build_trie(const vector<string> & patterns) {
  * patterns     -  patterns to match against
  * @return      -  all starting positions which match the text
  */
-
 vector <int> solve(const string& text, int n,
                    const vector <string>& patterns) {
 
   vector <int> result;
-
   trie search_tree = build_trie(patterns);
 
-  for(int i = 0; i < text.size(); i++ ){
-
+  for(int i = 0; i < text.size(); i++) {
 
     vector<char> matched_pat = prefix_trie_match(i,text,search_tree);
 
@@ -190,20 +196,20 @@ vector<char> prefix_trie_match(int start_index, const string & text , trie & pat
     edges edge_set = nd.first;
 
     if(debug) {
-      std::cerr<<"Edge Set :"<<current_node<<" size "<< edge_set.size()<<std::endl;
-      std::cerr<<"Terminal Pattern Node : "<< nd.second<<std::endl;
+      std::cerr<<"edge-set:"<<current_node<<" size "<< edge_set.size()<<std::endl;
+      std::cerr<<"terminal-pattern-node:["<< nd.second<<"]"<<std::endl;
     }
 
     map<char,int>::iterator entry = edge_set.find(cur_symbol);
 
     if(entry != edge_set.end()) { // found - traverse
-      
+
       if(debug)
         std::cerr<<"traversing the edge"<<std::endl;
 
       char matched_char = entry->first;
       matched.push_back(matched_char);
-      
+
       current_node = entry->second;
       cur_symbol = text[text_pos++];
 
