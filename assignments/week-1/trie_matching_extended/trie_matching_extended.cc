@@ -74,16 +74,16 @@ trie build_trie(const vector<string> & patterns) {
         if(debug) {
           std::cerr<<"found-edge:["<< cur_char <<"]:"<< entry->first <<","<< entry->second <<std::endl;
         }
-
         cur_node = entry->second;
         found = true;
 
-        if( j+1 == patterns[i].size() &&
-           !(pattern_trie[cur_node].first).empty()) {
-          if(debug) std::cerr<<"setting-terminal:"<<patterns[i]<<std::endl;
+        if(j+1 == patterns[i].size()) {
+          if(debug) {
+            std::cerr<<"setting-terminal :"<< patterns[i]<<std::endl;
+          }
           pattern_trie[cur_node].second = true;
-        }
-        
+        }        
+
 
       } else  { // add a new edge
         int node_number = pattern_trie.size();
@@ -100,16 +100,8 @@ trie build_trie(const vector<string> & patterns) {
         cur_node = node_number;
         (pattern_trie[cur_node].first)[cur_char] = node_number;
 
-        //TODO This seems to be setting AT and AG as terminal too.
-        // We could go on with the traversal but we are done with the current pattern
 
-        if( (j+1) == patterns[i].size() &&
-            !(pattern_trie[cur_node].first).empty()) {
-          
-          if(debug) std::cerr<<"setting-terminal:"<<patterns[i]<<std::endl;
-          pattern_trie[cur_node].second = true;
 
-        }
 
 
         if(debug) {
@@ -187,21 +179,19 @@ vector<char> prefix_trie_match(int start_index, const string & text , trie & pat
       return matched;
     }
 
-    // // We have a terminating pattern
-    // if(pat_trie[current_node].second){
-    //   return matched;
-    // }
-
-
     edges edge_set = nd.first;
 
     if(debug) {
       std::cerr<<"edge-set:"<<current_node<<" size "<< edge_set.size()<<std::endl;
       std::cerr<<"terminal-pattern-node:["<< nd.second<<"]"<<std::endl;
     }
-
+    if(nd.second) { // terminal node;
+      if(debug)
+        std::cerr<<"Terminal Pattern Node : "<< nd.second<<std::endl;
+      return matched;
+    }
+    
     map<char,int>::iterator entry = edge_set.find(cur_symbol);
-
     if(entry != edge_set.end()) { // found - traverse
 
       if(debug)
