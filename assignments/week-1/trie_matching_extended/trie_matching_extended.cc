@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 using namespace std;
 
@@ -30,7 +31,7 @@ typedef vector<node> trie;
 
 vector<char> prefix_trie_match(int start_index, const string & text , trie & pat_trie) ;
 trie build_trie(const vector<string> & patterns);
-vector <int> solve(const string& text, int n, const vector <string>& patterns);
+vector <int> solve(const string& text, int n,  vector <string>& patterns);
 
 /**
  * Builds a trie a set of patterns.
@@ -116,6 +117,9 @@ trie build_trie(const vector<string> & patterns) {
   return pattern_trie;
 }
 
+bool by_len(const string & a, const string & b) {
+  return a.size() > b.size();
+}
 
 /**
  * Search for all occurances of patterns over the text
@@ -127,7 +131,9 @@ trie build_trie(const vector<string> & patterns) {
  */
 
 vector <int> solve(const string& text, int n,
-                   const vector <string>& patterns) {
+                    vector <string>& patterns) {
+
+  std::sort(patterns.begin(), patterns.end(),by_len);
 
   vector <int> result;
 
