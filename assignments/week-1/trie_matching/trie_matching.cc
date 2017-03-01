@@ -4,15 +4,36 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
+
+
+using std::map;
+using std::vector;
+using std::string;
 
 using namespace std;
+
+#ifdef DEBUG
+const bool debug = true;
+#else
+const bool debug = false;
+#endif
+
+// char : Label for the edge , int: Node number
+typedef map<char, int> edges;
+
+// root: Of a trie which contains a bunch of edges.
+typedef vector<edges> trie;
 
 int const Letters =    4;
 int const NA      =   -1;
 
 struct Node {
+
   int next [Letters];
-  Node() { fill(next, next + Letters, NA);  }
+
+  Node() { fill(next, next + Letters, NA); }
+
   bool isLeaf () const {
     return (next[0] == NA &&
             next[1] == NA &&
@@ -20,6 +41,7 @@ struct Node {
             next[3] == NA);
   }
 };
+
 
 int letterToIndex(char letter) {
   switch (letter){
@@ -31,30 +53,101 @@ int letterToIndex(char letter) {
   }
 }
 
+trie build_trie(const vector<string> & patterns) {
 
+  trie pattern_trie;
+  edges root_node;
+
+  pattern_trie.push_back(root_node);
+
+  for(int i = 0; i < patterns.size(); i++ )  {
+    int cur_node = 0;
+
+    if(debug){
+      std::cerr<<"-------------------------------------------"<<std::endl;
+      std::cerr<<"adding-pattern:["<<patterns[i]<<"]"<<std::endl;
+    }
+
+    for(int j = 0; j < patterns[i].size() ;j++) {
+
+      char cur_char = patterns[i][j];
+
+      if(debug)
+        std::cerr<<"current-char:["<<cur_char<<"]"<<std::endl;
+
+      bool found = false;
+
+      //Go through all the edges.
+      edges node_edges = pattern_trie[cur_node];
+
+      std::map<char,int>::iterator entry = node_edges.find(cur_char);
+
+      if(entry != node_edges.end()) {
+
+        if(debug)
+          std::cerr<<"found-edge:["<<cur_char<<"]:"<<entry->first<<","<<entry->second<<std::endl;
+
+        cur_node = entry->second;
+        found = true;
+
+      } else  { // add a new edge
+        int node_number = pattern_trie.size();
+
+        if(debug) {
+          std::cerr<<"adding-edge:["<< cur_char << "," << node_number <<"]"<<std::endl;
+        }
+
+        edges new_node;
+
+        // leaf node : empty edge set
+        pattern_trie.push_back(new_node);
+        pattern_trie[cur_node][cur_char] = node_number;
+        cur_node = node_number;
+
+      }
+    }
+    if(debug)
+      std::cerr<<"-------------------------------------------"<<std::endl;
+  }
+  return pattern_trie;
+}
+
+
+/**
+ * Search for all occurances of patterns over the text
+ *
+ * text         -  text to match against
+ * n            -  number of patterns to match
+ * patterns     -  patterns to match against
+ * @return      -  all starting positions which match the text
+ */
 vector <int> solve(const string& text, int n,
                    const vector <string>& patterns) {
-
+  
   vector <int> result;  
+  trie search_tree = build_trie(patterns);
+  
+  
   
   return result;
 }
 
+
 int main (void)
 {
-  string t;
-  cin >> t;
-
+  string text;
   int n;
+
+  cin >>text;
   cin >> n;
 
   vector <string> patterns(n);
   for (int i = 0; i < n; i++){
-    cin >> patterns[i];
+    cin>>patterns[i];
   }
 
   vector <int> ans;
-  ans = solve(t,n,patterns);
+  ans = solve(text,n,patterns);
 
   for (int i = 0; i < (int) ans.size (); i++) {
     cout << ans[i];

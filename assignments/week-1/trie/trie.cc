@@ -60,8 +60,9 @@ trie build_trie(vector<string> & patterns) {
       } else  { // add a new edge
         int node_number = pattern_trie.size();
 
-        if(debug)
-          std::cerr<<"adding-edge:["<<cur_char<<","<<node_number<<"]"<<std::endl;
+        if(debug) {
+          std::cerr<<"adding-edge:["<< cur_char << "," << node_number <<"]"<<std::endl;
+        }
 
         edges new_node;
 
@@ -69,6 +70,7 @@ trie build_trie(vector<string> & patterns) {
         pattern_trie.push_back(new_node);
         pattern_trie[cur_node][cur_char] = node_number;
         cur_node = node_number;
+
       }
     }
     if(debug)
