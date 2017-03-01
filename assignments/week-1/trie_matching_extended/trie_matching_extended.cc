@@ -75,8 +75,14 @@ trie build_trie(const vector<string> & patterns) {
           std::cerr<<"found-edge:["<< cur_char <<"]:"<<entry->first <<","<<entry->second <<std::endl;
         }
         cur_node = entry->second;
-
         found = true;
+
+        if(j+1 == patterns[i].size()) {
+          if(debug) {
+            std::cerr<<"setting-terminal :"<< patterns[i]<<std::endl;
+          }
+          pattern_trie[cur_node].second = true;
+        }        
 
       } else  { // add a new edge
         int node_number = pattern_trie.size();
@@ -93,13 +99,7 @@ trie build_trie(const vector<string> & patterns) {
         (pattern_trie[cur_node].first)[cur_char] = node_number;
         cur_node = node_number;
 
-        if(j+1 == patterns[i].size()) {
-          if(debug) {
-            std::cerr<<"setting-Terminal :"<< patterns[i]<<std::endl;
-          }
 
-          pattern_trie[cur_node].second = true;
-        }
 
         if(debug){
 
@@ -181,21 +181,19 @@ vector<char> prefix_trie_match(int start_index, const string & text , trie & pat
       return matched;
     }
 
-    // // We have a terminating pattern
-    // if(pat_trie[current_node].second){
-    //   return matched;
-    // }
-
-
     edges edge_set = nd.first;
 
     if(debug) {
       std::cerr<<"Edge Set :"<<current_node<<" size "<< edge_set.size()<<std::endl;
       std::cerr<<"Terminal Pattern Node : "<< nd.second<<std::endl;
     }
-
+    if(nd.second) { // terminal node;
+      if(debug)
+        std::cerr<<"Terminal Pattern Node : "<< nd.second<<std::endl;
+      return matched;
+    }
+    
     map<char,int>::iterator entry = edge_set.find(cur_symbol);
-
     if(entry != edge_set.end()) { // found - traverse
       
       if(debug)
