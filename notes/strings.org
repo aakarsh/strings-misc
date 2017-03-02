@@ -1,0 +1,34 @@
+g* String Algoritms
+  
+** Burrows Wheeler Transform   
+*** Burrows Wheeler Transform
+*** Inverting the Burrows Wheeler Transform
+*** Pattern Matching Using the Burrows Wheeler Transform
+    
+** Suffix Arrays
+*** Suffix Arrays
+*** Pattern Matching Using Suffix Arrays
+    
+** Approximate Pattern Matching , and Mutations and the Genome   
+*** 
+    
+    
+* Knuth Morris Pratt Algorithm 
+** Exact Pattern Matching
+** Safe Shift
+** Prefix Function
+** Computing the Prefix Fucntion
+** Knuth-Morris-Pratt Algorithm
+   
+* Constructing Suffix Array and Suffix Tree
+** Suffix Array Construction
+*** Suffix Array
+*** General Stratergy
+*** Initialization
+*** Counting sort
+*** Sort Doubled Cyclic Shifts
+*** SortDouble Implementation
+*** Updating Classes
+*** Full Algorithm
+
+   
