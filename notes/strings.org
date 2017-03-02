@@ -1,7 +1,23 @@
-g* String Algoritms
+* String Algoritms
   
 ** Burrows Wheeler Transform   
-*** Burrows Wheeler Transform
+*** Burrows Wheeler Transform (block sorting compression)
+
+A *reversible* transformation of a string allows for more efficient
+run length encoding of strings by increasing probability of frequenty
+appearing characters end up in the long rungs allowing for better rung
+compression.
+
+For Exampe:
++-----------------------------------------------+----------------------------------------------+
+| Input                                         | Output                                       | 
++-----------------------------------------------+----------------------------------------------+
+| SIX.MIXED.PIXIES.SIFT.SIXTY.PIXIE.DUST.BOXES$ | TEXYDST.E.IXIXIXXSSMPPS.B..E.S.EUSFXDIIOIIIT |
++-----------------------------------------------+----------------------------------------------+
+
+
+
+
 *** Inverting the Burrows Wheeler Transform
 *** Pattern Matching Using the Burrows Wheeler Transform
     
