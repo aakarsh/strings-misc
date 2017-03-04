@@ -134,7 +134,9 @@ void test_sort_characters() {
 }
 
 int main() {
-  test_sort_characters();
+  if(debug)
+    test_sort_characters();
+
   string text;
   cin >> text;
   vector<int> suffix_array = BuildSuffixArray(text);
