@@ -121,16 +121,16 @@ smaller than T. there is an i in [0..|S|] such that
     or.
 3.  S[i] is a prefix of T[i] (using '$' at the end of suffixes will avoid this)
 
-S = ababaa
-
-Suffixes(anchored the end or string) in lexicographic order:
-
-a
-aa
-abaa
-ababaa
-baa
-babaa
+    S = ababaa
+    
+    Suffixes(anchored the end or string) in lexicographic order:
+    
+    a
+    aa
+    abaa
+    ababaa
+    baa
+    babaa
 
 adding '$' will prevent cases where S[i] is a prefix of T[i]
 
@@ -205,29 +205,25 @@ adding '$' will prevent cases where S[i] is a prefix of T[i]
 
 3.  Start with Counting Sort
 
-    \#+BEGIN<sub>SRC</sub> python
-    
-    order  = [] */ array size of |S|
-    count  = [] /* counts size of |L| of alpbabet
-    
-    for i in range(0, len(S) -1):
-        count[S[i]] = count[S[i]]+1;
-    
-    // Count now has the frequencies of each alphabet letter in |S|
-    
-    for j in range(1,len(L)-1):
-       cout[j] = count[j] + count[j-1]
-    
-    // Count contains the partial sums/starting positions for each alphabet
-    
-    for i in range(len(S)-1 , 0):
-      c = S[i] */ last character under consideration from the right
-      count[c] = count[c] - 1;  /* take character token
-      order[count[c]] = i; // populate order array with positions
-    
-    return order;
-    
-    \#+END<sub>SRC</sub> python
+        order  = [] // array size of |S|
+        count  = [] // counts size of |L| of alpbabet
+        
+        for i in range(0, len(S) -1):
+            count[S[i]] = count[S[i]]+1;
+        
+        // Count now has the frequencies of each alphabet letter in |S|
+        
+        for j in range(1,len(L)-1):
+           cout[j] = count[j] + count[j-1]
+        
+        // Count contains the partial sums/starting positions for each alphabet
+        
+        for i in range(len(S)-1 , 0):
+          c = S[i] // last character under consideration from the right
+          count[c] = count[c] - 1;  // take character token
+          order[count[c]] = i; // populate order array with positions
+        
+        return order;
 
 4.  Equivalence class
 
@@ -261,6 +257,36 @@ adding '$' will prevent cases where S[i] is a prefix of T[i]
         C_{i+l} = C_{2+2} = C_4 = aa
         C_i' = C_2' = abaa = C_2,C_4
 
+6.  Sorting Pairs
+
+    For more efficient computation of merged cyces we form Cycle
+    range pairs.
+    Represent C<sub>i'</sub> as (C<sub>i</sub>,C<sub>i+l</sub>)
+    
+    1.  C<sub>order</sub>, C<sub>order</sub>, &#x2026; , C<sub>order[|S|-1]</sub> are aready sorted.
+    
+    2.  Use counting sort, a stable sort and sort the second  element of the pair
+    
+        def sort_doubled(S,L,order,class) :
+          count  = [] // size of |S|
+          new_order = [] // array of size |S|
+        
+          // collect counts of each class
+          for i in range(0,len(S)):
+            count[class[i] = count[class[i]]+1
+        
+          // convert to partial sums
+          for j in range(1,len(S)-1):
+            count[j] = count[j]-1
+        
+          for i from range(|S|-1,0):
+            start = (order[i] - L + len(S)) mod |S|
+            cl = class[start]
+            count[c] = count[cl] -1 // take out a count
+            new_order[count[cl]] = start
+        
+          return new_order;
+
 ### General Stratergy<a id="sec-3-1-2" name="sec-3-1-2"></a>
 
 ### Initialization<a id="sec-3-1-3" name="sec-3-1-3"></a>
@@ -274,3 +300,15 @@ adding '$' will prevent cases where S[i] is a prefix of T[i]
 ### Updating Classes<a id="sec-3-1-7" name="sec-3-1-7"></a>
 
 ### Full Algorithm<a id="sec-3-1-8" name="sec-3-1-8"></a>
+
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p>DEFINITION NOT FOUND.</p></div>
+
+<div class="footdef"><sup><a id="fn.2" name="fn.2" class="footnum" href="#fnr.2">2</a></sup> <p>DEFINITION NOT FOUND.</p></div>
+
+
+</div>
+</div>

@@ -47,6 +47,7 @@ For Exampe:
        or.
     3. S[i] is a prefix of T[i] (using '$' at the end of suffixes will avoid this)
 
+    #+BEGIN_SRC Exampe
     S = ababaa
 
     Suffixes(anchored the end or string) in lexicographic order:
@@ -57,7 +58,8 @@ For Exampe:
     ababaa
     baa
     babaa
-
+    #+END_SRC
+    
     adding '$' will prevent cases where S[i] is a prefix of T[i]
 
 **** Storing suffix arrays.
@@ -86,7 +88,7 @@ For Exampe:
 
 **** Start with Counting Sort
 
-     #+BEGIN_SRC python
+     #+BEGIN_SRC Example
 
      order  = [] // array size of |S|
      count  = [] // counts size of |L| of alpbabet
@@ -108,7 +110,7 @@ For Exampe:
 
      return order;
 
-     #+END_SRC python
+     #+END_SRC 
 
 
 
@@ -147,7 +149,38 @@ For Exampe:
      C_i' = C_2' = abaa = C_2,C_4
      #+END_SRC      
      
+**** Sorting Pairs
      
+     For more efficient computation of merged cyces we form Cycle
+     range pairs.
+     Represent C_i' as (C_i,C_{i+l})
+     
+     1. C_{order[0]}, C_{order[1]}, ... , C_{order[|S|-1]} are aready sorted.
+
+     2. Use counting sort, a stable sort and sort the second  element of the pair
+
+
+     #+BEGIN_SRC Example
+     def sort_doubled(S,L,order,class) :
+       count  = [] // size of |S|
+       new_order = [] // array of size |S|
+
+       // collect counts of each class
+       for i in range(0,len(S)):
+         count[class[i] = count[class[i]]+1
+
+       // convert to partial sums
+       for j in range(1,len(S)-1):
+         count[j] = count[j]-1
+
+       for i from range(|S|-1,0):
+         start = (order[i] - L + len(S)) mod |S|
+         cl = class[start]
+         count[c] = count[cl] -1 // take out a count
+         new_order[count[cl]] = start
+
+       return new_order;
+     #+END_SRC 
 
 
 *** General Stratergy
