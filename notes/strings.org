@@ -1,6 +1,6 @@
 * String Algoritms
-  
-** Burrows Wheeler Transform   
+
+** Burrows Wheeler Transform
 *** Burrows Wheeler Transform (block sorting compression)
 
 A *reversible* transformation of a string allows for more efficient
@@ -10,7 +10,7 @@ compression.
 
 For Exampe:
 +-----------------------------------------------+----------------------------------------------+
-| Input                                         | Output                                       | 
+| Input                                         | Output                                       |
 +-----------------------------------------------+----------------------------------------------+
 | SIX.MIXED.PIXIES.SIFT.SIXTY.PIXIE.DUST.BOXES$ | TEXYDST.E.IXIXIXXSSMPPS.B..E.S.EUSFXDIIOIIIT |
 +-----------------------------------------------+----------------------------------------------+
@@ -20,25 +20,136 @@ For Exampe:
 
 *** Inverting the Burrows Wheeler Transform
 *** Pattern Matching Using the Burrows Wheeler Transform
-    
+
 ** Suffix Arrays
 *** Suffix Arrays
 *** Pattern Matching Using Suffix Arrays
-    
-** Approximate Pattern Matching , and Mutations and the Genome   
-*** 
-    
-    
-* Knuth Morris Pratt Algorithm 
+
+** Approximate Pattern Matching , and Mutations and the Genome
+***
+
+
+* Knuth Morris Pratt Algorithm
 ** Exact Pattern Matching
 ** Safe Shift
 ** Prefix Function
 ** Computing the Prefix Fucntion
 ** Knuth-Morris-Pratt Algorithm
-   
+
 * Constructing Suffix Array and Suffix Tree
 ** Suffix Array Construction
+
 *** Suffix Array
+    Given an ordered alphabet set. string S is lexicographicaly
+    smaller than T. there is an i in [0..|S|] such that
+    1. S[0..i-1] == T[0..i-1]
+    2. S[i]<T[i]
+       or.
+    3. S[i] is a prefix of T[i] (using '$' at the end of suffixes will avoid this)
+
+    S = ababaa
+
+    Suffixes(anchored the end or string) in lexicographic order:
+
+    a
+    aa
+    abaa
+    ababaa
+    baa
+    babaa
+
+    adding '$' will prevent cases where S[i] is a prefix of T[i]
+
+**** Storing suffix arrays.
+
+     Number al suffixes ababaa$ is suffix 0 , abaa$ is suffix 2
+     Suffix ordering can be stored as an array.
+     [0,2,...]
+
+**** Creating suffix array
+     start with string ababaa$ and consider all lexicographic sorted
+     cyclic shifts :
+
+     | Sorted Cyclic Shift | Chopped Prefix |
+     | $ababaa             | $              |
+     | a$ababa             | a$             |
+     | aa$abab             | aa$            |
+     | abaa$ab             | abaa$          |
+     | ababaa$             | ababaa$        |
+     | babaa$a             | babaa$         |
+
+     Sorting cyclic shifts and sorting suffixes is equivalent.
+
+     1. Start with sorting partial cyclic of length L.
+     2. Construct partial cyclic shift of lenght 2|L| using
+        partial cyclic shift of |L|.
+
+**** Start with Counting Sort
+
+     #+BEGIN_SRC python
+
+     order  = [] // array size of |S|
+     count  = [] // counts size of |L| of alpbabet
+
+     for i in range(0, len(S) -1):
+         count[S[i]] = count[S[i]]+1;
+
+     // Count now has the frequencies of each alphabet letter in |S|
+
+     for j in range(1,len(L)-1):
+        cout[j] = count[j] + count[j-1]
+
+     // Count contains the partial sums/starting positions for each alphabet
+
+     for i in range(len(S)-1 , 0):
+       c = S[i] // last character under consideration from the right
+       count[c] = count[c] - 1;  // take character token
+       order[count[c]] = i; // populate order array with positions
+
+     return order;
+
+     #+END_SRC python
+
+
+
+**** Equivalence class
+
+     1. C_i -partial cyclic shift of length L starting at position i
+     2. if C_i ==  C_j they beong to same equivalence class.
+     3. class[i] - Number of different cyclic shifts of length L strictly smaller than C_i
+     4. C_i == C_j  iff class[i] == class[j]
+        
+
+**** Sort Doubled Cyclic Shifts
+
+     Starting with a set of cyclic shifts of length L. Its possible to
+     determinie the equivalence class partition of cyclic shifts of
+     lenth 2*|L|.
+
+     1. Let C_i be cyclic shift of length L starting in i
+     2. Let C_i' be doubled cyclic shift starting in i
+     3. C_i' = C_i,C_{i+L} is a cyclic shift of length 2|L| composed
+        of two shorter cyclic shifts
+     4. Comparing C_i' and C_j' 
+        4.1 Compare C_i and C_j , i.e check class[i] == class[j]
+        4.2 Compoare C_{i+L} and C_{j+L} ie check class[i+l] == class[j+l]
+        4.3 If both hold then C_i' and C_j' belong to the same equivalence class.
+
+
+     Example :
+     #+BEGIN_SRC Example
+     S = ababaa$
+     L = 2
+     i = 2
+     
+     C_i = C_2 = ab
+     C_{i+l} = C_{2+2} = C_4 = aa
+     C_i' = C_2' = abaa = C_2,C_4
+     #+END_SRC      
+     
+     
+
+
 *** General Stratergy
 *** Initialization
 *** Counting sort
@@ -46,5 +157,3 @@ For Exampe:
 *** SortDouble Implementation
 *** Updating Classes
 *** Full Algorithm
-
-   
