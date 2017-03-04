@@ -86,7 +86,7 @@ For Exampe:
      2. Construct partial cyclic shift of lenght 2|L| using
         partial cyclic shift of |L|.
 
-**** Start with Counting Sort
+**** Start with Counting Sort : SortCharacters(S)
 
      #+BEGIN_SRC Example
 
@@ -114,7 +114,7 @@ For Exampe:
 
 
 
-**** Equivalence class
+**** Equivalence class : ComputeCharClasses(S,order)
 
      1. C_i -partial cyclic shift of length L starting at position i
      2. if C_i ==  C_j they beong to same equivalence class.
@@ -122,7 +122,7 @@ For Exampe:
      4. C_i == C_j  iff class[i] == class[j]
         
 
-**** Sort Doubled Cyclic Shifts
+**** Sort Doubled Cyclic Shifts 
 
      Starting with a set of cyclic shifts of length L. Its possible to
      determinie the equivalence class partition of cyclic shifts of
@@ -149,7 +149,7 @@ For Exampe:
      C_i' = C_2' = abaa = C_2,C_4
      #+END_SRC      
      
-**** Sorting Pairs
+**** Sorting Pairs : SortDoubled(S,L, order,cass)
      
      For more efficient computation of merged cyces we form Cycle
      range pairs.
@@ -181,7 +181,14 @@ For Exampe:
 
        return new_order;
      #+END_SRC 
-     ..
+     
+**** Update classes : UpdateClasses(newOrder,class,L)
+     
+     Go through consequetive pairs that have been sorted. Equal pairs
+     get assigned equivalence classes.
+     (C_i,C_{i+l}) == (C_k,C_{k+l})  if (C_i == C_k) and C_{i+l} == C_{k+l}
+
+     
 
 
 *** General Stratergy
