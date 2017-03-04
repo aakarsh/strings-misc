@@ -75,6 +75,28 @@ vector<int> sort_characters(const string& text, vector<char>& alphabet) {
 }
 
 /**
+ * Creates single character long equivance classes, each letter gets
+ * same equivalence class.
+ */
+vector<int> char_classes(const string & text, vector<int> & order)
+{
+  int n = text.size();
+  vector<int> classes(n,0);
+
+  for(int i = 1; i < n; i++) {    
+
+    classes[order[i]] = classes[order[i-1]];
+    
+    // if we are *not* the same equivalence class
+    // increment class label
+    if(text[order[i-1]] != text[order[i]])
+      classes[order[i]]++;
+
+  }
+  return classes;
+}
+
+/**
  * Build suffix array of the string text and return a vector result of
  * the same length as the text such that the value result[i] is the
  * index (0-based) in text where the i-th lexicographically smallest
@@ -97,12 +119,17 @@ void print_by_order(string & text ,vector<int> & order) {
 
 void test_sort_characters() {
   string text("ACTGAACAA$");
+  std::cerr<<text<<endl;
   vector<int> order = sort_characters(text,alphabet);
   print_by_order(text,order);
+  vector<int> classes = char_classes(text,order);
+  print_vector("classes" , classes);
 
   string text2("ACTTTGGGTTTGAACAA$");
+  std::cerr<<text<<endl;
   order = sort_characters(text2,alphabet);
   print_by_order(text2,order);
+  
 }
 
 int main() {
