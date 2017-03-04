@@ -74,6 +74,7 @@ vector<int> sort_characters(const string& text, vector<char>& alphabet) {
   return order;
 }
 
+
 /**
  * Creates single character long equivance classes, each letter gets
  * same equivalence class.
@@ -91,10 +92,10 @@ vector<int> char_classes(const string & text, vector<int> & order)
     // increment class label
     if(text[order[i-1]] != text[order[i]])
       classes[order[i]]++;
-
   }
   return classes;
 }
+
 
 /**
  * Build suffix array of the string text and return a vector result of
