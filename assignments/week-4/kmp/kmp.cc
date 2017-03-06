@@ -38,7 +38,8 @@ vector<int> compute_prefixes(const string & pattern) {
   prefix_array[0] = 0;
   int border = 0; // length of curent border
 
-  for(int i = 1; i< pattern.size() ; i++){
+  for(int i = 1; i< pattern.size() ; i++) {
+
     if(debug)
       std::cerr<<"i["<<i<<"]"<<std::endl;
 
@@ -51,10 +52,15 @@ vector<int> compute_prefixes(const string & pattern) {
     border = pattern[i] == pattern[border] ? ( border + 1) : 0;
     
     prefix_array[i] = border;    
+
   }
 
   return prefix_array;
 }
+
+
+
+
 
 /**
  * Find all occurrences of the pattern in the text and return a
