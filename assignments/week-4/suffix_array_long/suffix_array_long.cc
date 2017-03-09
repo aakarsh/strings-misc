@@ -22,28 +22,19 @@ const bool debug = false;
 
 vector<char> alphabet = {'$','A','C','G','T'};
 
-// Need a constant time operation
-inline int key(char c) {
-  auto beg = alphabet.begin();
-  auto end = alphabet.end();
-  return distance(beg ,find(beg,end,c));
-}
+/* Debugging method defintions */
+void print_ordering(const string& text, vector<int>order, int cycle_length);
+void print_cycles(const string &text,vector<int> & order,vector<int> & classes,int cycle_length);
+void print_vector(string label, vector<int> v); 
 
-void print_vector(string label, vector<int> v) {
-  if(!debug)
-    return;
-  cerr<<label<<":";
-  for(int i : v)
-    cerr<<i<<" ";
-  cerr<<endl;
-}
+/* Primitives*/
+inline int key(char c);
 
 /**
  * Given a set of characters return an ordering for the characters
  * over the text.
  */
-vector<int> sort_characters(const string& text, vector<char>& alphabet) {
-
+vector<int> sort_by_chars(const string& text, vector<char>& alphabet) {
   int n  = text.size();
   vector<int> order(n,0);
   vector<int> count(alphabet.size(),0);
@@ -77,7 +68,6 @@ vector<int> sort_characters(const string& text, vector<char>& alphabet) {
     print_vector("order",order);
 
   return order;
-
 }
 
 /**
@@ -103,8 +93,7 @@ vector<int> char_classes(const string & text, vector<int> & order)
  * Extracts cycle of length cycle_length from string , starting at
  * position start.
  */
-string text_part(const string& text, int start, int cycle_length)
-{
+string text_part(const string& text, int start, int cycle_length) {
   string part("");
   int n  = text.size();
   int cur = start;
@@ -114,19 +103,6 @@ string text_part(const string& text, int start, int cycle_length)
     cur++;
   }
   return part;
-}
-
-void print_ordering(const string& text, vector<int>order, int cycle_length)
-{
-  if(!debug) return;
-  int i = 0;
-  for(int start : order) {
-    string part("-");
-    if(start >= 0)
-      part = text_part(text,start,cycle_length);
-    fprintf(stderr,"(%2d,%2d) [%8s]\n",start,(start+cycle_length)%text.size(),part.c_str());
-    i++;
-  }
 }
 
 
@@ -160,14 +136,13 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
   print_vector("sort-doubed: partial-sums", count);
   print_vector("sort-doubed: classes"     , classes);
 
-
-  
   // 3.
   for(int i = text.size() - 1; i >= 0; i--) {
 
     // The previous cycle will start from position cycle_length -1
     // end at order[i]
     int start = (order[i] - cycle_length + 1 + n  ) % n;
+
     int eq_cls = classes[start];
 
     // take a instance of the class
@@ -214,10 +189,9 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
  * the new cycle_length. We only need to compare the ends of the
  * equivalence classes to check if they lie in the same class.
  */
-vector<int> update_classes(const string & text,
-                           vector<int> & order,
-                           vector<int> & classes,
-                           int cycle_length,int text_length)
+vector<int> update_classes(const string & text, vector<int> & order,
+                           vector<int> & classes,int cycle_length,
+                           int text_length)
 {
 
   vector<int> new_classes(classes.size(),-1);
@@ -268,18 +242,6 @@ vector<int> update_classes(const string & text,
   return new_classes;
 }
 
-void print_cycles(const string &text,vector<int> & order,
-                  vector<int> & classes,
-                  int cycle_length) {
-  if(!debug)
-    return;
-  int  c = 0;
-  for(auto cur : order) {    
-    fprintf(stderr,"%-5s (%3d,%3d,%3d):[%s]\n","suffix",cur,classes[cur],cycle_length,
-           text_part(text,cur,cycle_length).c_str());
-
-  }
-}
 
 /**
  * Build suffix array of the string text and return a vector result of
@@ -289,14 +251,14 @@ void print_cycles(const string &text,vector<int> & order,
  */
 vector<int> build_suffix_array(const string& text,vector<char> alphabet)
 {
-
-  vector<int> order = sort_characters(text,alphabet);
+  vector<int> order = sort_by_chars(text,alphabet);
   vector<int> classes = char_classes(text, order);
 
   int cycle_length = 1;
   int j = 0;
 
   while(true) {
+
     if(debug) {
       fprintf(stderr,"--[%2d,%3d]=-------------------------------------------\n",j++,cycle_length);
       std::cerr<<text<<std::endl;
@@ -305,18 +267,106 @@ vector<int> build_suffix_array(const string& text,vector<char> alphabet)
       print_cycles(text,order,classes,cycle_length);
       fprintf(stderr,"--------------------------------------------------\n");
     }
+
     cycle_length *= 2;
-    if(cycle_length >= text.size())
-      break;
 
     vector<int> new_order = sort_doubled(text,order,classes,cycle_length);
     classes = update_classes(text,new_order,classes,cycle_length,text.size());
     order = new_order;
 
+    if(cycle_length >= text.size()) {
+      break;
+    }
   }
+
+  print_cycles(text,order,classes,cycle_length);
 
   return order;
 }
+
+void test_sort_by_chars() {
+  vector<int> order;
+  vector<int> classes;
+
+  /*
+  {
+    string text("ACTGAACAA$");
+    std::cerr<<text<<endl;
+    vector<int> order = sort_by_chars(text,alphabet);
+    print_by_order(text,order);
+    vector<int> classes = char_classes(text,order);
+    print_vector("classes-" , classes);
+  }
+
+  {
+    string text("ACTTTGGGTTTGAACAA$");
+    std::cerr<<text<<endl;
+    order = sort_by_chars(text,alphabet);
+    vector<int> order = build_suffix_array(text,alphabet);
+    print_cycles(text,order,text.size());
+  }
+  */
+
+  {
+    alphabet = {'$','a','b'} ;
+    string text("ababaa$");
+    if(debug)
+      std::cerr<<text<<endl;
+    order = sort_by_chars(text,alphabet);
+    vector<int> order = build_suffix_array(text,alphabet);
+    
+    //print_cycles(text,order,text.size());
+  }
+}
+
+int main() {
+  if(false)
+    test_sort_by_chars();
+
+  string text;
+  cin >> text;
+  vector<int> suffix_array = build_suffix_array(text,alphabet);
+  for (int i = 0; i < suffix_array.size(); ++i) {
+    cout << suffix_array[i] << ' ';
+  }
+  cout << endl;
+
+  return 0;
+}
+
+
+/** Primitive methods **/
+// Need a constant time operation
+inline int key(char c) {
+  auto beg = alphabet.begin();
+  auto end = alphabet.end();
+  return distance(beg ,find(beg,end,c));
+}
+
+/** Debugging methods **/
+void print_vector(string label, vector<int> v) {
+  if(!debug)
+    return;
+  cerr<<label<<":";
+  for(int i : v)
+    cerr<<i<<" ";
+  cerr<<endl;
+}
+
+
+void print_ordering(const string& text, vector<int>order, int cycle_length)
+{
+  if(!debug) return;
+  int i = 0;
+  for(int start : order) {
+    string part("-");
+    if(start >= 0)
+      part = text_part(text,start,cycle_length);
+    fprintf(stderr,"(%2d,%2d) [%8s]\n",start,(start+cycle_length)%text.size(),part.c_str());
+    i++;
+  }
+}
+
 
 void print_by_order(string & text ,vector<int> & order) {
   if(debug)
@@ -330,55 +380,13 @@ void print_by_order(string & text ,vector<int> & order) {
   std::cerr<<endl;
 }
 
-void test_sort_characters() {
-  vector<int> order;
-  vector<int> classes;
 
-  /*
-  {
-    string text("ACTGAACAA$");
-    std::cerr<<text<<endl;
-    vector<int> order = sort_characters(text,alphabet);
-    print_by_order(text,order);
-    vector<int> classes = char_classes(text,order);
-    print_vector("classes-" , classes);
+void print_cycles(const string &text,vector<int> & order,vector<int> & classes,int cycle_length) {
+  if(!debug)
+    return;
+  int  c = 0;
+  for(auto cur : order) {    
+    fprintf(stderr,"%-5s (%3d,%3d,%3d):[%s]\n","suffix",cur,classes[cur],cycle_length,
+           text_part(text,cur,cycle_length).c_str());
   }
-
-  {
-    string text("ACTTTGGGTTTGAACAA$");
-    std::cerr<<text<<endl;
-    order = sort_characters(text,alphabet);
-    vector<int> order = build_suffix_array(text,alphabet);
-    print_cycles(text,order,text.size());
-  }
-  */
-
-  {
-
-    alphabet = {'$','a','b'} ;
-    string text("ababaa$");
-    if(debug)
-      std::cerr<<text<<endl;
-    order = sort_characters(text,alphabet);
-    vector<int> order = build_suffix_array(text,alphabet);
-    
-    //print_cycles(text,order,text.size());
-  }
-
-
-}
-
-int main() {
-  if(false)
-    test_sort_characters();
-
-  string text;
-  cin >> text;
-  vector<int> suffix_array = build_suffix_array(text,alphabet);
-  for (int i = 0; i < suffix_array.size(); ++i) {
-    cout << suffix_array[i] << ' ';
-  }
-  cout << endl;
-
-  return 0;
 }
