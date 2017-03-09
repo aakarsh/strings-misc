@@ -52,6 +52,7 @@ vector<int> sort_characters(const string& text, vector<char>& alphabet) {
   for(int i = 0; i < n; i++) {
     count[key(text[i])]++;
   }
+
   if(debug)
     print_vector("frequencies",count);
 
@@ -71,9 +72,12 @@ vector<int> sort_characters(const string& text, vector<char>& alphabet) {
     count[k]--;
     order[count[k]] = i;
   }
+  
   if(debug)
     print_vector("order",order);
+
   return order;
+
 }
 
 /**
@@ -155,13 +159,9 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
 
   print_vector("sort-doubed: partial-sums", count);
   print_vector("sort-doubed: classes"     , classes);
-  if(debug) {
-    fprintf(stderr,"%-10s\n",text.c_str());
-    fprintf(stderr,"+-------------------------------+\n");
-    fprintf(stderr,"|%-10s |%-5s |%-5s |%-5s|\n",
-            "suffix","start", "class","count");
-    fprintf(stderr,"+-------------------------------+\n");
-  }
+
+
+  
   // 3.
   for(int i = text.size() - 1; i >= 0; i--) {
 
@@ -174,13 +174,22 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
     count[eq_cls]--;
 
     if(debug) {
+   
+    fprintf(stderr,"%-10s\n",text.c_str());
+    fprintf(stderr,"+-----------------------------------------------+\n");
+    fprintf(stderr,"|%2s |%2s |%2s |%c | %-10s |%-5s |%-5s |%-5s|\n","i","len","ord",'l',"suffix","start", "class","count");
+    fprintf(stderr,"+----------------------------------------------+\n");
+
       // we are taking a character from previous cycle's equivalence class
       fprintf(stderr,"|%2d |%2d |%2d |%c | %-10s |%-5d |%-5d |%-5d|\n"
               ,i,cycle_length,order[i], text[order[i]],
               text_part(text,start,cycle_length).c_str(),
               start,eq_cls,count[eq_cls]);
+      fprintf(stderr,"+----------------------------------------------+\n");
     }
+
     new_order[count[eq_cls]] = start;
+
     if(debug) {
       fprintf(stderr,"start : %d\n",start);
       cerr<<"text : "<<text<<endl;
@@ -206,7 +215,7 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
  * equivalence classes to check if they lie in the same class.
  */
 vector<int> update_classes(const string & text,
-                           vector<int> & new_order,
+                           vector<int> & order,
                            vector<int> & classes,
                            int cycle_length,int text_length)
 {
@@ -216,23 +225,22 @@ vector<int> update_classes(const string & text,
 
   int current_class = 0;
 
-  print_vector("update_classes:new_order",new_order);
+  print_vector("update_classes:order",order);
   print_vector("update_classes:classes",classes);
 
   if(debug)
     std::cerr<<"Updating:[";
 
-  new_classes[new_order[0]] = current_class;
-  for(int i = 1; i < new_order.size(); i++ ) {
+  new_classes[order[0]] = current_class;
 
-    int cur_start = new_order[i];
-    int cur_mid   = (cur_start + cycle_length) % text_length;
+  for(int i = 1; i < order.size(); i++ ) {
 
-    int prev_start   = new_order[i-1];
-    int prev_mid     = (prev_start + cycle_length) % text_length;
+    // seems to fix class assignment for GA
+    int prev_start   = order[i-1]; 
+    int prev_mid     = (order[i-1] + cycle_length -1) % text_length;
 
-    //    pair<int,int> prev(classes[(i-1-cycle_length+n)%n], classes[i-1]);
-    //    pair<int,int> cur (classes[(i-cycle_length+n)%n  ], classes[i]);
+    int cur_start = order[i]; 
+    int cur_mid   = (order[i] + cycle_length -1 ) % text_length; 
 
     pair<int,int> prev(classes[prev_start], classes[prev_mid]);
     pair<int,int> cur (classes[cur_start] , classes[cur_mid]);
@@ -247,9 +255,9 @@ vector<int> update_classes(const string & text,
     }
 
     if(prev!=cur) {
-      new_classes[new_order[i]] = ++current_class;
+      new_classes[order[i]] = ++current_class;
     } else {
-      new_classes[new_order[i]] = current_class;
+      new_classes[order[i]] = current_class;
     }
     print_vector("new_classes",new_classes);
   }
