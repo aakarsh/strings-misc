@@ -114,7 +114,7 @@ string text_part(const string& text, int start, int cycle_length) {
  *
  */
 vector<int> sort_doubled(const string& text, vector<int> & order,
-                         vector<int> & classes, int cycle_length) {
+                         vector<int>& classes, int cycle_length) {
 
   int n = text.size();
   vector<int> count(n,0);
@@ -126,12 +126,14 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
   // Counting sort by last half of the array
 
   // 1. Count frequency of each class
-  for(int i = 0; i < n; i++) count[classes[i]]++;
+  for(int i = 0; i < n; i++)
+    count[classes[i]]++;
 
   print_vector("sort-doubed: counts",count);
 
   // 2. Compute partial sums of class counts
-  for(int i = 1; i < n; i++) count[i] += count[i-1];
+  for(int i = 1; i < n; i++) 
+    count[i] += count[i-1];
 
   print_vector("sort-doubed: partial-sums", count);
   print_vector("sort-doubed: classes"     , classes);
@@ -143,27 +145,27 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
     // end at order[i]
     int start = (order[i] - cycle_length + 1 + n  ) % n;
 
-    int eq_cls = classes[start];
+    int cls = classes[start];
 
     // take a instance of the class
-    count[eq_cls]--;
+    count[cls]--;
 
     if(debug) {
    
-    fprintf(stderr,"%-10s\n",text.c_str());
-    fprintf(stderr,"+-----------------------------------------------+\n");
-    fprintf(stderr,"|%2s |%2s |%2s |%c | %-10s |%-5s |%-5s |%-5s|\n","i","len","ord",'l',"suffix","start", "class","count");
-    fprintf(stderr,"+----------------------------------------------+\n");
+      fprintf(stderr,"%-10s\n",text.c_str());
+      fprintf(stderr,"+-----------------------------------------------+\n");
+      fprintf(stderr,"|%2s |%2s |%2s |%c | %-10s |%-5s |%-5s |%-5s|\n","i","len","ord",'l',"suffix","start", "class","count");
+      fprintf(stderr,"+----------------------------------------------+\n");
 
       // we are taking a character from previous cycle's equivalence class
       fprintf(stderr,"|%2d |%2d |%2d |%c | %-10s |%-5d |%-5d |%-5d|\n"
               ,i,cycle_length,order[i], text[order[i]],
               text_part(text,start,cycle_length).c_str(),
-              start,eq_cls,count[eq_cls]);
+              start,cls,count[cls]);
       fprintf(stderr,"+----------------------------------------------+\n");
     }
 
-    new_order[count[eq_cls]] = start;
+    new_order[count[cls]] = start;
 
     if(debug) {
       fprintf(stderr,"start : %d\n",start);
@@ -173,6 +175,7 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
       print_vector("partial_sums",count);
       print_ordering(text,new_order,cycle_length);
     }
+
   }
 
   if(debug)
@@ -278,9 +281,7 @@ vector<int> build_suffix_array(const string& text,vector<char> alphabet)
       break;
     }
   }
-
   print_cycles(text,order,classes,cycle_length);
-
   return order;
 }
 
@@ -334,7 +335,6 @@ int main() {
   return 0;
 }
 
-
 /** Primitive methods **/
 // Need a constant time operation
 inline int key(char c) {
@@ -353,7 +353,6 @@ void print_vector(string label, vector<int> v) {
   cerr<<endl;
 }
 
-
 void print_ordering(const string& text, vector<int>order, int cycle_length)
 {
   if(!debug) return;
@@ -367,7 +366,6 @@ void print_ordering(const string& text, vector<int>order, int cycle_length)
   }
 }
 
-
 void print_by_order(string & text ,vector<int> & order) {
   if(debug)
     return;
@@ -379,7 +377,6 @@ void print_by_order(string & text ,vector<int> & order) {
   }
   std::cerr<<endl;
 }
-
 
 void print_cycles(const string &text,vector<int> & order,vector<int> & classes,int cycle_length) {
   if(!debug)
