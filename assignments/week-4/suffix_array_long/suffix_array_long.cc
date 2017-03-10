@@ -34,6 +34,7 @@ inline int key(char c);
  * over the text.
  */
 vector<int> sort_by_chars(const string& text) {
+
   int n  = text.size();
   vector<int> order(n,0);
   vector<int> count(CHAR_MAX,0);
@@ -79,6 +80,7 @@ vector<int> char_classes(const string & text, vector<int> & order)
   vector<int> classes(n,0);
 
   for(int i = 1; i < n; i++) {
+
     classes[order[i]] = classes[order[i-1]];
     // if we are *not* the same equivalence class increment class
     // label
@@ -275,7 +277,7 @@ vector<int> build_suffix_array(const string& text)
   int cycle_length = 1;
   int j = 0;
 
-  while(true) {
+  while(cycle_length < text.size()) {
 
     if(debug) {
       fprintf(stderr,"--[%2d,%3d]=-------------------------------------------\n",j++,cycle_length);
@@ -287,20 +289,13 @@ vector<int> build_suffix_array(const string& text)
     }
 
     cycle_length *= 2;
-
-    if(cycle_length > text.size()) {
-      break;
-    }
     
     vector<int> new_order = sort_doubled(text,order,classes,cycle_length);
     classes = update_classes(text,new_order,classes,cycle_length,text.size());
     order = new_order;
 
-
-
-
-
   }
+
   print_cycles(text,order,classes,cycle_length/2);
   return order;
 }
@@ -308,13 +303,10 @@ vector<int> build_suffix_array(const string& text)
 void test_sort_by_chars() {
   vector<int> order;
   vector<int> classes;
-
-  /*
   {
     string text("ACTGAACAA$");
     std::cerr<<text<<endl;
-    vector<int> order = sort_by_chars(text,alphabet);
-    print_by_order(text,order);
+    vector<int> order = sort_by_chars(text);
     vector<int> classes = char_classes(text,order);
     print_vector("classes-" , classes);
   }
@@ -322,11 +314,10 @@ void test_sort_by_chars() {
   {
     string text("ACTTTGGGTTTGAACAA$");
     std::cerr<<text<<endl;
-    order = sort_by_chars(text,alphabet);
-    vector<int> order = build_suffix_array(text,alphabet);
-    print_cycles(text,order,text.size());
+    order = sort_by_chars(text);
+    vector<int> order = build_suffix_array(text);
   }
-  */
+
 
   {
     string text("ababaa$");
@@ -334,15 +325,12 @@ void test_sort_by_chars() {
       std::cerr<<text<<endl;
     order = sort_by_chars(text);
     vector<int> order = build_suffix_array(text);
-
     //print_cycles(text,order,text.size());
   }
 }
 
 int main() {
-  if(false)
-    test_sort_by_chars();
-
+  if(false)  test_sort_by_chars();
   string text;
   cin >> text;
   vector<int> suffix_array = build_suffix_array(text);
@@ -350,20 +338,17 @@ int main() {
     cout << suffix_array[i] << ' ';
   }
   cout << endl;
-
   return 0;
 }
 
 /** Primitive methods **/
-// Need a constant time operation
 inline int key(char c) {
   return (int) c;
 }
 
 /** Debugging methods **/
 void print_vector(string label, vector<int> v) {
-  if(!debug)
-    return;
+  if(!debug) return;
   cerr<<label<<":";
   for(int i : v)
     cerr<<i<<" ";
@@ -381,18 +366,6 @@ void print_ordering(const string& text, vector<int>order, int cycle_length)
     fprintf(stderr,"(%2d,%2d) [%8s]\n",start,(start+cycle_length)%text.size(),part.c_str());
     i++;
   }
-}
-
-void print_by_order(string & text ,vector<int> & order) {
-  if(debug)
-    return;
-  for(int i = 0 ; i < order.size(); i++){
-    if(order[i] == -1)
-      cerr<<"*";
-    else
-      cerr<<text[order[i]];
-  }
-  std::cerr<<endl;
 }
 
 void print_cycles(const string &text,vector<int> & order,vector<int> & classes,int cycle_length) {
