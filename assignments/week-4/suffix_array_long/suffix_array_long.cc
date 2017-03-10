@@ -25,7 +25,7 @@ vector<char> alphabet = {'$','A','C','G','T'};
 /* Debugging method defintions */
 void print_ordering(const string& text, vector<int>order, int cycle_length);
 void print_cycles(const string &text,vector<int> & order,vector<int> & classes,int cycle_length);
-void print_vector(string label, vector<int> v); 
+void print_vector(string label, vector<int> v);
 
 /* Primitives*/
 inline int key(char c);
@@ -60,10 +60,10 @@ vector<int> sort_by_chars(const string& text, vector<char>& alphabet) {
 
   for(int i = n-1 ; i >= 0; i--) {
     int k  = key(text[i]);
-    count[k]--;
+    count[k]=count[k]-1;
     order[count[k]] = i;
   }
-  
+
   if(debug)
     print_vector("order",order);
 
@@ -120,8 +120,14 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
   vector<int> count(n,0);
   vector<int> new_order(n,-1);
 
-  if(debug)
+  if(debug) {
+    fprintf(stderr,"--------------------------------------------------\n");
+    std::cerr<<"entry:sort-doubled"<<endl;
     print_vector("old-order:", order);
+    print_vector("old-classes:", classes);
+    fprintf(stderr,"cycle-length: %d\n",cycle_length);
+    fprintf(stderr,"--------------------------------------------------\n");
+  }
 
   // Counting sort by last half of the array
 
@@ -132,7 +138,7 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
   print_vector("sort-doubed: counts",count);
 
   // 2. Compute partial sums of class counts
-  for(int i = 1; i < n; i++) 
+  for(int i = 1; i < n; i++)
     count[i] += count[i-1];
 
   print_vector("sort-doubed: partial-sums", count);
@@ -141,17 +147,21 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
   // 3.
   for(int i = text.size() - 1; i >= 0; i--) {
 
+    int suffix_start = order[i];
+
     // The previous cycle will start from position cycle_length -1
     // end at order[i]
-    int start = (order[i] - cycle_length + 1 + n  ) % n;
+    // No idea why i am just totally stuck
+    int prefix_start = (suffix_start - (cycle_length/2) + n   ) % n;
 
-    int cls = classes[start];
+    /* Represents the equivalence class of prefix of current element  */
+    int prefix_class = classes[prefix_start];
 
-    // take a instance of the class
-    count[cls]--;
+    /* Reduce count of prefix equivalence class*/
+    count[prefix_class]= count[prefix_class] - 1;
 
     if(debug) {
-   
+
       fprintf(stderr,"%-10s\n",text.c_str());
       fprintf(stderr,"+-----------------------------------------------+\n");
       fprintf(stderr,"|%2s |%2s |%2s |%c | %-10s |%-5s |%-5s |%-5s|\n","i","len","ord",'l',"suffix","start", "class","count");
@@ -160,15 +170,21 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
       // we are taking a character from previous cycle's equivalence class
       fprintf(stderr,"|%2d |%2d |%2d |%c | %-10s |%-5d |%-5d |%-5d|\n"
               ,i,cycle_length,order[i], text[order[i]],
-              text_part(text,start,cycle_length).c_str(),
-              start,cls,count[cls]);
+              text_part(text,prefix_start,cycle_length).c_str(),
+              prefix_start,prefix_class,count[prefix_class]);
+
       fprintf(stderr,"+----------------------------------------------+\n");
     }
 
-    new_order[count[cls]] = start;
+    new_order[count[prefix_class]] = prefix_start;
 
     if(debug) {
-      fprintf(stderr,"start : %d\n",start);
+      fprintf(stderr,"prefix [%s] class [%d] prefix-start:[%d] ",text_part(text,prefix_start,cycle_length/2).c_str(),classes[prefix_start],prefix_start);
+      fprintf(stderr,"suffix [%s] class [%d] suffix-start:[%d] \n",text_part(text,suffix_start,cycle_length/2).c_str(),classes[suffix_start],suffix_start);
+      fprintf(stderr,"start : %d\n",prefix_start);
+      fprintf(stderr,"cls : %d\n",prefix_class);
+      fprintf(stderr,"count[cls] : %d\n",count[prefix_class]);
+      fprintf(stderr,"new_order[[count[cls]] : %d\n",new_order[count[prefix_class]]);
       cerr<<"text : "<<text<<endl;
       print_vector("old-order", order);
       print_vector("new_order",new_order);
@@ -213,11 +229,11 @@ vector<int> update_classes(const string & text, vector<int> & order,
   for(int i = 1; i < order.size(); i++ ) {
 
     // seems to fix class assignment for GA
-    int prev_start   = order[i-1]; 
-    int prev_mid     = (order[i-1] + cycle_length -1) % text_length;
+    int prev_start   = order[i-1];
+    int prev_mid     = (order[i-1] + cycle_length/2) % text_length;
 
-    int cur_start = order[i]; 
-    int cur_mid   = (order[i] + cycle_length -1 ) % text_length; 
+    int cur_start = order[i];
+    int cur_mid   = (order[i] + cycle_length/2 ) % text_length;
 
     pair<int,int> prev(classes[prev_start], classes[prev_mid]);
     pair<int,int> cur (classes[cur_start] , classes[cur_mid]);
@@ -225,10 +241,10 @@ vector<int> update_classes(const string & text, vector<int> & order,
     int old_class = current_class;
 
     if(debug) {
-      std::cerr<<text<<endl;
-      std::cerr<<"{ ("<< prev.first <<","<< prev.second <<")->";
-      std::cerr<<"("<< cur.first <<","<< cur.second <<") } ";
-      std::cerr<<endl;
+      fprintf(stderr,"\n|%7s|%7s|%4s|\n","Prev","Curr","Same");
+      fprintf(stderr,"|%3d,%3d|%3d,%3d|%4d|\n",
+              prev.first,prev.second,cur.first,cur.second,prev == cur);
+
     }
 
     if(prev!=cur) {
@@ -273,15 +289,20 @@ vector<int> build_suffix_array(const string& text,vector<char> alphabet)
 
     cycle_length *= 2;
 
+    if(cycle_length > text.size()) {
+      break;
+    }
+    
     vector<int> new_order = sort_doubled(text,order,classes,cycle_length);
     classes = update_classes(text,new_order,classes,cycle_length,text.size());
     order = new_order;
 
-    if(cycle_length >= text.size()) {
-      break;
-    }
+
+
+
+
   }
-  print_cycles(text,order,classes,cycle_length);
+  print_cycles(text,order,classes,cycle_length/2);
   return order;
 }
 
@@ -315,7 +336,7 @@ void test_sort_by_chars() {
       std::cerr<<text<<endl;
     order = sort_by_chars(text,alphabet);
     vector<int> order = build_suffix_array(text,alphabet);
-    
+
     //print_cycles(text,order,text.size());
   }
 }
@@ -379,11 +400,19 @@ void print_by_order(string & text ,vector<int> & order) {
 }
 
 void print_cycles(const string &text,vector<int> & order,vector<int> & classes,int cycle_length) {
-  if(!debug)
-    return;
+
+  if(!debug) return;
+
   int  c = 0;
-  for(auto cur : order) {    
-    fprintf(stderr,"%-5s (%3d,%3d,%3d):[%s]\n","suffix",cur,classes[cur],cycle_length,
-           text_part(text,cur,cycle_length).c_str());
+
+  fprintf(stderr,"--------------------------------------------------\n");
+  fprintf(stderr,"%7s |%7s |%7s |%7s\n","order","class","cycle","suffix");
+  fprintf(stderr,"--------------------------------------------------\n");
+
+  for(auto cur : order) {
+    const char* suffix = text_part(text,cur,cycle_length).c_str();
+    fprintf(stderr,"%7d |%7d |%7d | [%s]|\n",cur,classes[cur],cycle_length,suffix);
   }
+
+  fprintf(stderr,"--------------------------------------------------\n");
 }
