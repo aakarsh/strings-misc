@@ -1,3 +1,4 @@
+#include <climits>
 #include <algorithm>
 #include <iostream>
 #include <string>
@@ -20,8 +21,6 @@ const bool debug = true;
 const bool debug = false;
 #endif
 
-vector<char> alphabet = {'$','A','C','G','T'};
-
 /* Debugging method defintions */
 void print_ordering(const string& text, vector<int>order, int cycle_length);
 void print_cycles(const string &text,vector<int> & order,vector<int> & classes,int cycle_length);
@@ -34,10 +33,10 @@ inline int key(char c);
  * Given a set of characters return an ordering for the characters
  * over the text.
  */
-vector<int> sort_by_chars(const string& text, vector<char>& alphabet) {
+vector<int> sort_by_chars(const string& text) {
   int n  = text.size();
   vector<int> order(n,0);
-  vector<int> count(alphabet.size(),0);
+  vector<int> count(CHAR_MAX,0);
 
   // count frequency of each alphabet
   for(int i = 0; i < n; i++) {
@@ -48,7 +47,7 @@ vector<int> sort_by_chars(const string& text, vector<char>& alphabet) {
     print_vector("frequencies",count);
 
   // compute partial sum of each alphabet
-  for(int j = 1; j < alphabet.size(); j++) {
+  for(int j = 1; j < CHAR_MAX ; j++) {
     count[j] += count[j-1];
   }
 
@@ -233,7 +232,7 @@ vector<int> update_classes(const string & text, vector<int> & order,
     int prev_mid     = (order[i-1] + cycle_length/2) % text_length;
 
     int cur_start = order[i];
-    int cur_mid   = (order[i] + cycle_length/2 ) % text_length;
+    int cur_mid   = (order[i] + cycle_length/2) % text_length;
 
     pair<int,int> prev(classes[prev_start], classes[prev_mid]);
     pair<int,int> cur (classes[cur_start] , classes[cur_mid]);
@@ -268,9 +267,9 @@ vector<int> update_classes(const string & text, vector<int> & order,
  * index (0-based) in text where the i-th lexicographically smallest
  * suffix of text starts. Implement this function yourself.
  */
-vector<int> build_suffix_array(const string& text,vector<char> alphabet)
+vector<int> build_suffix_array(const string& text)
 {
-  vector<int> order = sort_by_chars(text,alphabet);
+  vector<int> order = sort_by_chars(text);
   vector<int> classes = char_classes(text, order);
 
   int cycle_length = 1;
@@ -330,12 +329,11 @@ void test_sort_by_chars() {
   */
 
   {
-    alphabet = {'$','a','b'} ;
     string text("ababaa$");
     if(debug)
       std::cerr<<text<<endl;
-    order = sort_by_chars(text,alphabet);
-    vector<int> order = build_suffix_array(text,alphabet);
+    order = sort_by_chars(text);
+    vector<int> order = build_suffix_array(text);
 
     //print_cycles(text,order,text.size());
   }
@@ -347,7 +345,7 @@ int main() {
 
   string text;
   cin >> text;
-  vector<int> suffix_array = build_suffix_array(text,alphabet);
+  vector<int> suffix_array = build_suffix_array(text);
   for (int i = 0; i < suffix_array.size(); ++i) {
     cout << suffix_array[i] << ' ';
   }
@@ -359,9 +357,7 @@ int main() {
 /** Primitive methods **/
 // Need a constant time operation
 inline int key(char c) {
-  auto beg = alphabet.begin();
-  auto end = alphabet.end();
-  return distance(beg ,find(beg,end,c));
+  return (int) c;
 }
 
 /** Debugging methods **/
