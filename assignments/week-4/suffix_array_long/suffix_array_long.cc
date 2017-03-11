@@ -37,23 +37,25 @@ vector<int> sort_by_chars(const string& text) {
 
   int n  = text.size();
   vector<int> order(n,0);
-  vector<int> count(CHAR_MAX,0);
+  vector<int> count(2*CHAR_MAX,0);
 
   // count frequency of each alphabet
   for(int i = 0; i < n; i++) {
     count[key(text[i])]++;
   }
 
-  if(debug)
+  #if DEBUG
     print_vector("frequencies",count);
-
+  #endif
+    
   // compute partial sum of each alphabet
-  for(int j = 1; j < CHAR_MAX ; j++) {
+  for(int j = 1; j < 2*CHAR_MAX ; j++) {
     count[j] += count[j-1];
   }
 
-  if(debug)
+  #if DEBUG
     print_vector("partials",count);
+  #endif
 
   // start from the end pull out alphabet and decrement its count give
   // the appropriate value of the order
@@ -64,8 +66,9 @@ vector<int> sort_by_chars(const string& text) {
     order[count[k]] = i;
   }
 
-  if(debug)
+  #if DEBUG
     print_vector("order",order);
+  #endif
 
   return order;
 }
@@ -121,14 +124,14 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
   vector<int> count(n,0);
   vector<int> new_order(n,-1);
 
-  if(debug) {
+  #if DEBUG
     fprintf(stderr,"--------------------------------------------------\n");
     std::cerr<<"entry:sort-doubled"<<endl;
     print_vector("old-order:", order);
     print_vector("old-classes:", classes);
     fprintf(stderr,"cycle-length: %d\n",cycle_length);
     fprintf(stderr,"--------------------------------------------------\n");
-  }
+  #endif
 
   // Counting sort by last half of the array
 
@@ -161,7 +164,7 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
     /* Reduce count of prefix equivalence class*/
     count[prefix_class]= count[prefix_class] - 1;
 
-    if(debug) {
+    #if DEBUG
 
       fprintf(stderr,"%-10s\n",text.c_str());
       fprintf(stderr,"+-----------------------------------------------+\n");
@@ -175,31 +178,37 @@ vector<int> sort_doubled(const string& text, vector<int> & order,
               prefix_start,prefix_class,count[prefix_class]);
 
       fprintf(stderr,"+----------------------------------------------+\n");
-    }
+    #endif
 
     new_order[count[prefix_class]] = prefix_start;
 
-    if(debug) {
-      fprintf(stderr,"prefix [%s] class [%d] prefix-start:[%d] ",text_part(text,prefix_start,cycle_length/2).c_str(),classes[prefix_start],prefix_start);
-      fprintf(stderr,"suffix [%s] class [%d] suffix-start:[%d] \n",text_part(text,suffix_start,cycle_length/2).c_str(),classes[suffix_start],suffix_start);
+    #if DEBUG
+
+      fprintf(stderr,"prefix [%s] class [%d] prefix-start:[%d] ",
+              text_part(text,prefix_start,cycle_length/2).c_str(),classes[prefix_start],prefix_start);
+
+      fprintf(stderr,"suffix [%s] class [%d] suffix-start:[%d] \n",
+              text_part(text,suffix_start,cycle_length/2).c_str(),classes[suffix_start],suffix_start);
+
       fprintf(stderr,"start : %d\n",prefix_start);
       fprintf(stderr,"cls : %d\n",prefix_class);
       fprintf(stderr,"count[cls] : %d\n",count[prefix_class]);
       fprintf(stderr,"new_order[[count[cls]] : %d\n",new_order[count[prefix_class]]);
+
       cerr<<"text : "<<text<<endl;
       print_vector("old-order", order);
       print_vector("new_order",new_order);
       print_vector("partial_sums",count);
       print_ordering(text,new_order,cycle_length);
-    }
+
+    #endif
 
   }
 
-  if(debug)
+  #if DEBUG 
     fprintf(stderr,"+-------------------------------+\n");
-
-  //  print_vector("new_order:",new_order);
-  print_ordering(text,new_order,cycle_length);
+    print_ordering(text,new_order,cycle_length);
+  #endif
 
   return new_order;
 }
@@ -222,9 +231,10 @@ vector<int> update_classes(const string & text, vector<int> & order,
   print_vector("update_classes:order",order);
   print_vector("update_classes:classes",classes);
 
-  if(debug)
+  #if DEBUG
     std::cerr<<"Updating:[";
-
+  #endif
+    
   new_classes[order[0]] = current_class;
 
   for(int i = 1; i < order.size(); i++ ) {
@@ -241,12 +251,14 @@ vector<int> update_classes(const string & text, vector<int> & order,
 
     int old_class = current_class;
 
+    #if DEBUG
     if(debug) {
       fprintf(stderr,"\n|%7s|%7s|%4s|\n","Prev","Curr","Same");
       fprintf(stderr,"|%3d,%3d|%3d,%3d|%4d|\n",
               prev.first,prev.second,cur.first,cur.second,prev == cur);
 
     }
+    #endif
 
     if(prev!=cur) {
       new_classes[order[i]] = ++current_class;
@@ -256,8 +268,10 @@ vector<int> update_classes(const string & text, vector<int> & order,
     print_vector("new_classes",new_classes);
   }
 
+  #if DEBUG
   if(debug)
     std::cerr<<"]"<<endl;
+  #endif 
 
   return new_classes;
 }
@@ -272,13 +286,14 @@ vector<int> update_classes(const string & text, vector<int> & order,
 vector<int> build_suffix_array(const string& text)
 {
   vector<int> order = sort_by_chars(text);
-  vector<int> classes = char_classes(text, order);
-
+  vector<int> classes = char_classes(text, order);                                
+  int n = text.size();
   int cycle_length = 1;
   int j = 0;
 
-  while(cycle_length < text.size()) {
+  while(cycle_length < n) {
 
+    #if DEBUG
     if(debug) {
       fprintf(stderr,"--[%2d,%3d]=-------------------------------------------\n",j++,cycle_length);
       std::cerr<<text<<std::endl;
@@ -287,13 +302,11 @@ vector<int> build_suffix_array(const string& text)
       print_cycles(text,order,classes,cycle_length);
       fprintf(stderr,"--------------------------------------------------\n");
     }
-
-    cycle_length *= 2;
+    #endif
     
-    vector<int> new_order = sort_doubled(text,order,classes,cycle_length);
-    classes = update_classes(text,new_order,classes,cycle_length,text.size());
-    order = new_order;
-
+    cycle_length *= 2;    
+    order = sort_doubled(text,order,classes,cycle_length);
+    classes = update_classes(text,order,classes,cycle_length,n);
   }
 
   print_cycles(text,order,classes,cycle_length/2);
@@ -321,8 +334,10 @@ void test_sort_by_chars() {
 
   {
     string text("ababaa$");
+    #if DEBUG
     if(debug)
       std::cerr<<text<<endl;
+    #endif
     order = sort_by_chars(text);
     vector<int> order = build_suffix_array(text);
     //print_cycles(text,order,text.size());
