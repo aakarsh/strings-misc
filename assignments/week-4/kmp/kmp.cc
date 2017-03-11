@@ -38,8 +38,7 @@ vector<int> compute_prefixes(const string & pattern) {
   prefix_array[0] = 0;
   int border = 0; // length of curent border
 
-  for(int i = 1; i< pattern.size() ; i++) {
-
+  for(int i = 1; i< pattern.size() ; i++){
     if(debug)
       std::cerr<<"i["<<i<<"]"<<std::endl;
 
@@ -98,4 +97,4 @@ int main() {
   }
   printf("\n");
   return 0;
-}
+}n

@@ -91,7 +91,8 @@
   (suffix/stress 20 10000)
   (message "Done"))
 
-(suffix/stress-do)
+;;(suffix/stress-do)
+;;(suffix/stress 1 200000)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; from #emacs - didi
